@@ -1,0 +1,14 @@
+[
+  {
+    "route": "/api/time-entries",
+    "proxy": "http://time-entries-service:3000/"
+  },
+  {
+    "route": "/api/projects",
+    "proxy": "http://project-service:3000/"
+  },
+  {
+    "route": "/api/tasks",
+    "proxy": "http://tasks-service:3000/"
+  }
+]

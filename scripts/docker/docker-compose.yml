@@ -1,0 +1,59 @@
+version: '3'
+services:
+  time-entries-service:
+    build:
+      context: ../../
+      dockerfile: ./scripts/docker/time-entries/Dockerfile
+    ports:
+    - 5001:3000
+    depends_on:
+    - mongo
+    - config-service
+  project-service:
+    build:
+      context: ../../
+      dockerfile: ./scripts/docker/projects/Dockerfile
+    ports:
+    - 5002:3000
+    depends_on:
+    - mongo
+    - config-service
+  tasks-service:
+    build:
+      context: ../../
+      dockerfile: ./scripts/docker/tasks/Dockerfile
+    ports:
+    - 5003:3000
+    depends_on:
+    - mongo
+    - config-service
+  config-service:
+    build:
+      context: ../../
+      dockerfile: ./scripts/docker/config/Dockerfile
+    ports:
+    - 5004:3000
+    depends_on:
+    - mongo
+  api-gateway:
+    build: 
+      context: ../../
+      dockerfile: ./scripts/docker/api-gateway/Dockerfile
+    ports:
+    - 5005:3000
+#  web:
+#    build: ./client
+#    volumes:
+#    - ./client:/app
+#    ports:
+#    - 3000:3000
+#    depends_on:
+#    - project-service
+#    - time-entries-service
+#    - tasks-service
+#    - config-service
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+    - 27017:27017

@@ -1,0 +1,4 @@
+server="mongo"
+database="time-entry"
+audience="http://sttp.com"
+issuer="https://stpp.eu.auth0.com/"
