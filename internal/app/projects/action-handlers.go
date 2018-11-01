@@ -16,7 +16,8 @@ import (
 var dao ProjectDAO
 
 func init() {
-	config := GetConfig()
+	r := Reader{}
+	config := r.GetConfig()
 	dao.Server = config.Server
 	dao.Database = config.Database
 

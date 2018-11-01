@@ -8,7 +8,15 @@ import (
 	. "time-logger/internal/pkg/dtos"
 )
 
-func GetConfig() (Config) {
+type IConfigReader interface {
+	GetConfig()
+}
+
+type Reader struct {
+}
+
+
+func (r *Reader) GetConfig() (Config) {
 	var config Config
 	response, err := http.Get("http://config-service:3000/")
 

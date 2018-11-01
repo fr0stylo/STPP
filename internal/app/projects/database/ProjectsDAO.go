@@ -9,6 +9,15 @@ import (
 	. "time-logger/internal/pkg/entities"
 )
 
+type IProjectDAO interface {
+	Connect()
+	FindAll() ([] Project, error)
+	FindById(id string) (Project, error)
+	Insert(entry Project) error
+	Update(entry Project) error
+	Delete(entry Project) error
+}
+
 type ProjectDAO struct {
 	Server   string
 	Database string

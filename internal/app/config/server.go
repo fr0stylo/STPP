@@ -8,10 +8,16 @@ import (
 	"strconv"
 )
 
+type Server struct {
+	r mux.Router
+
+}
+
 func StartServer(port int) {
 	r := mux.NewRouter()
+	cr := ConfigReader{}
 
-	r.HandleFunc("/", GetConfig).Methods("GET")
+	r.HandleFunc("/", cr.GetConfig).Methods("GET")
 
 	n := negroni.Classic()
 	n.UseHandler(r)
