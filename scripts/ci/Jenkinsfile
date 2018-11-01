@@ -4,8 +4,8 @@ node {
             env.PATH="${GOPATH}/bin:$PATH"
     
             stage('Build'){
-                sh "go get -v ../cmd/config"
-                sh "CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -v ../cmd/config"
+                sh "go get -v ./cmd/config"
+                sh "cd build && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -v ../cmd/config"
             }
         }
     }
