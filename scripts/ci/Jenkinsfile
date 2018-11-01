@@ -2,7 +2,14 @@ node {
     ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger") {
         withEnv(["GOPATH=${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}"]) {
             env.PATH="${GOPATH}/bin:$PATH"
-    
+            
+            stage('Checkout') {
+                git(
+                    url: 'https://github.com/fr0stylo/STPP.git',
+                    branch: "master"
+                )
+            }
+            
             stage('Config build'){
                 sh "go get -v ./cmd/config"
                 sh "cd build && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -v ../cmd/config"
@@ -22,12 +29,11 @@ node {
                 sh "go get -v ./cmd/time-entries"
                 sh "cd build && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -v ../cmd/time-entries"
             }
-
-            stage('Api Gateway build'){
+            
+              stage('Api Gateway build'){
                  ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger/api-gateway"){
-                    sh "npm i -g yarn"
-                    sh "yarn install"
-                    sh "yarn build"
+                    sh "npm install"
+                    sh "npm run build"
                 }
             }
         }
