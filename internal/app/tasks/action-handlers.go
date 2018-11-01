@@ -15,7 +15,8 @@ import (
 var dao TaskDAO
 
 func init() {
-	config := GetConfig()
+	r := Reader{}
+	config := r.GetConfig()
 	dao.Server = config.Server
 	dao.Database = config.Database
 

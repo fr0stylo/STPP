@@ -17,25 +17,20 @@ import (
 var dao TimeEntryDAO
 
 func init() {
-	config := GetConfig()
+	r := Reader{}
+	config := r.GetConfig()
 	dao.Server = config.Server
 	dao.Database = config.Database
 
 	dao.Connect()
 }
 
-
 func GetAllTimeEntriesEndPoint(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	//query,_ := url.ParseQuery(r.URL.RawQuery)
 	var entries []TimeEntry
 	var err error
 
-	//if query["project"] != nil {
-	//	entries, err = dao.FindAllByProjectId(query["projectId"][0])
-	//} else {
 	entries, err = dao.FindAll()
-	//}
 
 	if err != nil {
 		RespondWithError(w, http.StatusInternalServerError, "Invalid entries")
