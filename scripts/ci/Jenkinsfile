@@ -57,7 +57,7 @@ pipeline {
                             sh "npm install"
                             sh "npm run build"
                         }
-                    }k
+                    }
                 }
                 
                 stage('Docker containers build'){
