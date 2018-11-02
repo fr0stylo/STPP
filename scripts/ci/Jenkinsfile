@@ -56,13 +56,17 @@ pipeline {
                 
             }
         }
-
         stage('Api Gateway build'){
             steps {
                 ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger/api-gateway"){
                     sh "npm install"
                     sh "npm run build"
                 }
+            }
+        }
+        stage('Docker build'){
+            stages{
+                sh "docker ls"
             }
         }
     } 
