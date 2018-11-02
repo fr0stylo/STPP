@@ -12,20 +12,18 @@ pipeline {
             }
             
         }
-        stage('Build') {
-            stage('Config build'){
-                steps {
-                    ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger") {
-                        withEnv(["GOPATH=${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}"]) {
-                                sh "go get -v ./cmd/config"
-                                sh "cd build && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -v ../cmd/config"
-                        }
+        stage('Config build'){
+            steps {
+                ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger") {
+                    withEnv(["GOPATH=${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}"]) {
+                            sh "go get -v ./cmd/config"
+                            sh "cd build && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -v ../cmd/config"
                     }
                 }
             }
+        }
+        stage('Build else') {   
             parallel {
-               
-
                 stage('Projects build'){
                     steps {
                         ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger") {
@@ -57,14 +55,6 @@ pipeline {
                         ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger/api-gateway"){
                             sh "npm install"
                             sh "npm run build"
-                        }
-                    }
-                }
-                
-                stage('Docker containers build'){
-                    steps {
-                        ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger/scripts/docker"){
-                            sh "docker-compose build"
                         }
                     }
                 }
