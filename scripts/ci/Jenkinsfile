@@ -61,8 +61,10 @@ pipeline {
                 }
                 
                 stage('Docker containers build'){
-                    ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger/scripts/docker"){
-                        sh "docker-compose build"
+                    steps {
+                        ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger/scripts/docker"){
+                            sh "docker-compose build"
+                        }
                     }
                 }
             }
