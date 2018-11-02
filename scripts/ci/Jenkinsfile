@@ -30,10 +30,16 @@ node {
                 sh "cd build && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -v ../cmd/time-entries"
             }
             
-              stage('Api Gateway build'){
+            stage('Api Gateway build'){
                  ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger/api-gateway"){
                     sh "npm install"
                     sh "npm run build"
+                }
+            }
+            
+            stage('Docker containers build'){
+                 ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger/scripts/docker"){
+                    sh "docker-compose build"
                 }
             }
         }
