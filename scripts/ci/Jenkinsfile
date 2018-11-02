@@ -22,50 +22,46 @@ pipeline {
                 }
             }
         }
-        stage('Build else') {   
-            parallel {
-                stage('Projects build'){
-                    steps {
-                        ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger") {
-                            withEnv(["GOPATH=${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}"]) {
-                                sh "go get -v ./cmd/projects"
-                                sh "cd build && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -v ../cmd/projects"
-                            }
-                        }
-                    }
-                    
-                }
-
-                stage('Tasks build'){
-                    steps {
-                         ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger") {
-                            withEnv(["GOPATH=${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}"]) {
-                                sh "go get -v ./cmd/tasks"
-                                sh "cd build && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -v ../cmd/tasks"
-                            }
-                        }
+        stage('Projects build'){
+            steps {
+                ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger") {
+                    withEnv(["GOPATH=${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}"]) {
+                        sh "go get -v ./cmd/projects"
+                        sh "cd build && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -v ../cmd/projects"
                     }
                 }
+            }
+            
+        }
 
-                stage('Time Entries build'){
-                    steps {
-                        ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger") {
-                            withEnv(["GOPATH=${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}"]) {
-                                sh "go get -v ./cmd/time-entries"
-                                sh "cd build && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -v ../cmd/time-entries"
-                            }
-                        }
-                        
+        stage('Tasks build'){
+            steps {
+                    ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger") {
+                    withEnv(["GOPATH=${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}"]) {
+                        sh "go get -v ./cmd/tasks"
+                        sh "cd build && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -v ../cmd/tasks"
                     }
                 }
+            }
+        }
 
-                stage('Api Gateway build'){
-                    steps {
-                        ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger/api-gateway"){
-                            sh "npm install"
-                            sh "npm run build"
-                        }
+        stage('Time Entries build'){
+            steps {
+                ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger") {
+                    withEnv(["GOPATH=${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}"]) {
+                        sh "go get -v ./cmd/time-entries"
+                        sh "cd build && CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -v ../cmd/time-entries"
                     }
+                }
+                
+            }
+        }
+
+        stage('Api Gateway build'){
+            steps {
+                ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger/api-gateway"){
+                    sh "npm install"
+                    sh "npm run build"
                 }
             }
         }
