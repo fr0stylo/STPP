@@ -1,2 +1,6 @@
 # STPP
-Saitynu taikomuju programu programavimas Serveris
+Saitynu taikomuju programu programavimas
+
+Serverio dalis.
+
+Golang
