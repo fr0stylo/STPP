@@ -68,8 +68,8 @@ pipeline {
             steps {
                ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger"){
                    sh "docker build -t config -f ./scripts/docker/config/Dockerfile ."
-                   sh "docker tag config 159.89.31.121:5000/zm/congfig:0.0.${BUILD_ID}"
-                   sh "docker push config"
+                   sh "docker tag config 159.89.31.121:5000/zm/config:0.0.${BUILD_ID}"
+                   sh "docker push 159.89.31.121:5000/zm/config:0.0.${BUILD_ID}"
                 }
             }
         }
