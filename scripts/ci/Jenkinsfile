@@ -66,9 +66,9 @@ pipeline {
         }
         stage('Docker build'){
             steps {
-               ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger/scripts/docker/config"){
-                   sh "docker build -t config:0.${BUILD_ID} ."
-                   sh "docker push config:0.${BUILD_ID}"
+               ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger"){
+                   sh "docker build -t config:0.${BUILD_ID} -f ./scripts/docker/config/Dockerfile ."
+                   sh "docker push 159.89.31.121:5000/config:0.${BUILD_ID}"
                 }
             }
         }
