@@ -112,7 +112,7 @@ pipeline {
 
         stage('Cleanup') {
             steps {
-                sh "docker images -q | xargs docker images rm"
+                sh "docker images prune -f"
             }
         }
     } 
