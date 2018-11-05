@@ -64,13 +64,55 @@ pipeline {
                 }
             }
         }
-        stage('Docker build'){
+        stage('Config docker build'){
             steps {
                ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger"){
                    sh "docker build -t config -f ./scripts/docker/config/Dockerfile ."
                    sh "docker tag config 159.89.31.121:5000/zm/config:0.0.${BUILD_ID}"
                    sh "docker push 159.89.31.121:5000/zm/config:0.0.${BUILD_ID}"
                 }
+            }
+        }
+        stage('Projects docker build'){
+            steps {
+               ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger"){
+                   sh "docker build -t projects -f ./scripts/docker/projects/Dockerfile ."
+                   sh "docker tag projects 159.89.31.121:5000/zm/projects:0.0.${BUILD_ID}"
+                   sh "docker push 159.89.31.121:5000/zm/projects:0.0.${BUILD_ID}"
+                }
+            }
+        }
+        stage('Tasks docker build'){
+            steps {
+               ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger"){
+                   sh "docker build -t tasks -f ./scripts/docker/tasks/Dockerfile ."
+                   sh "docker tag tasks 159.89.31.121:5000/zm/tasks:0.0.${BUILD_ID}"
+                   sh "docker push 159.89.31.121:5000/zm/tasks:0.0.${BUILD_ID}"
+                }
+            }
+        }
+        stage('time-entries docker build'){
+            steps {
+               ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger"){
+                   sh "docker build -t time-entries -f ./scripts/docker/time-entries/Dockerfile ."
+                   sh "docker tag time-entries 159.89.31.121:5000/zm/time-entries:0.0.${BUILD_ID}"
+                   sh "docker push 159.89.31.121:5000/zm/time-entries:0.0.${BUILD_ID}"
+                }
+            }
+        }
+        stage('Api-gateway docker build'){
+            steps {
+               ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger"){
+                   sh "docker build -t api-gateway -f ./scripts/docker/api-gateway/Dockerfile ."
+                   sh "docker tag api-gateway 159.89.31.121:5000/zm/api-gateway:0.0.${BUILD_ID}"
+                   sh "docker push 159.89.31.121:5000/zm/api-gateway:0.0.${BUILD_ID}"
+                }
+            }
+        }
+
+        stage('Cleanup') {
+            steps {
+                sh "docker images -q | xargs docker images rm"
             }
         }
     } 
