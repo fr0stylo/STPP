@@ -56,6 +56,7 @@ pipeline {
                 
             }
         }
+
         stage('Api Gateway build'){
             steps {
                 ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger/api-gateway"){
@@ -64,6 +65,7 @@ pipeline {
                 }
             }
         }
+
         stage('Config docker build'){
             steps {
                ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger"){
@@ -73,6 +75,7 @@ pipeline {
                 }
             }
         }
+
         stage('Projects docker build'){
             steps {
                ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger"){
@@ -82,6 +85,7 @@ pipeline {
                 }
             }
         }
+        
         stage('Tasks docker build'){
             steps {
                ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger"){
@@ -91,6 +95,7 @@ pipeline {
                 }
             }
         }
+
         stage('time-entries docker build'){
             steps {
                ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger"){
@@ -100,6 +105,7 @@ pipeline {
                 }
             }
         }
+
         stage('Api-gateway docker build'){
             steps {
                ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/src/time-logger"){
@@ -107,6 +113,12 @@ pipeline {
                    sh "docker tag api-gateway 159.89.31.121:5000/zm/api-gateway:0.0.${BUILD_ID}"
                    sh "docker push 159.89.31.121:5000/zm/api-gateway:0.0.${BUILD_ID}"
                 }
+            }
+        }
+
+        stage('Deployment') {
+            withCredentials([string(credentialsId: 'PWD', variable: 'pwd')]) {
+                sh "ssh root@159.89.31.121 -vvv"
             }
         }
 
