@@ -117,7 +117,7 @@ pipeline {
         }
 
         stage('Deployment') {
-            withCredentials([string(credentialsId: 'PWD', variable: 'pwd')]) {
+            steps{
                 sh "ssh root@159.89.31.121 -vvv"
             }
         }
