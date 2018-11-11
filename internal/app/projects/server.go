@@ -2,27 +2,22 @@ package projects
 
 import (
 	"github.com/codegangsta/negroni"
-	"github.com/gorilla/mux"
-	"log"
-	"net/http"
-	"strconv"
+	"time-logger/internal/app/projects/database"
+	. "time-logger/internal/pkg/http-wrappers"
+	"time-logger/internal/pkg/server"
 )
 
-func StartServer(port int) {
-	r := mux.NewRouter()
+func StartServer(r server.Router, env *Env) *negroni.Negroni{
+	env.DBConnection = &database.ProjectDAO{ DB: env.DB}
 
-	r.HandleFunc("/", GetAllProjectsEndPoint).Methods("GET")
-	r.HandleFunc("/", AddProjectEndPoint).Methods("POST")
-	r.HandleFunc("/", UpdateProjectEndPoint).Methods("PUT")
-	r.HandleFunc("/", DeleteProjectEndPoint).Methods("DELETE")
-	r.HandleFunc("/{id}", GetProjectEndPoint).Methods("GET")
+	r.Handle("/", Handler{env, GetAllProjectsEndPoint}).Methods("GET")
+	r.Handle("/", Handler{env, AddProjectEndPoint}).Methods("POST")
+	r.Handle("/", Handler{env, UpdateProjectEndPoint}).Methods("PUT")
+	r.Handle("/", Handler{env, DeleteProjectEndPoint}).Methods("DELETE")
+	r.Handle("/{id}", Handler{env, GetProjectEndPoint}).Methods("GET")
 
 	n := negroni.Classic()
 	n.UseHandler(r)
 
-	stringedPort := ":"+ strconv.Itoa(port)
-
-	if err := http.ListenAndServe(stringedPort, n); err != nil {
-		log.Fatal(err)
-	}
+	return n
 }

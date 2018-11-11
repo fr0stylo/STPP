@@ -2,28 +2,22 @@ package time_entries
 
 import (
 	"github.com/codegangsta/negroni"
-	"github.com/gorilla/mux"
-	"log"
-	"net/http"
-	"strconv"
+	"time-logger/internal/app/tasks/database"
+	"time-logger/internal/pkg/http-wrappers"
+	"time-logger/internal/pkg/server"
 )
 
-func StartServer(port int) {
-	r := mux.NewRouter()
+func StartServer(r server.Router, env *http_wrappers.Env) *negroni.Negroni {
+	env.DBConnection = &database.TaskDAO{DB: env.DB}
 
-	r.HandleFunc("/", GetAllTimeEntriesEndPoint).Methods("GET")
-	r.HandleFunc("/", AddTimeEntryEndPoint).Methods("POST")
-	r.HandleFunc("/", UpdateTimeEntryEndPoint).Methods("PUT")
-	r.HandleFunc("/", DeleteTimeEntryEndPoint).Methods("DELETE")
-	r.HandleFunc("/{id}", GetTimeEntryByIdEndPoint).Methods("GET")
-
+	r.Handle("/", http_wrappers.Handler{env, GetAllTimeEntriesEndPoint}).Methods("GET")
+	r.Handle("/", http_wrappers.Handler{env, AddTimeEntryEndPoint}).Methods("POST")
+	r.Handle("/", http_wrappers.Handler{env, UpdateTimeEntryEndPoint}).Methods("PUT")
+	r.Handle("/", http_wrappers.Handler{env, DeleteTimeEntryEndPoint}).Methods("DELETE")
+	r.Handle("/{id}", http_wrappers.Handler{env, GetTimeEntryByIdEndPoint}).Methods("GET")
 
 	n := negroni.Classic()
 	n.UseHandler(r)
 
-	stringedPort := ":"+ strconv.Itoa(port)
-
-	if err := http.ListenAndServe(stringedPort, n); err != nil {
-		log.Fatal(err)
-	}
+	return n
 }

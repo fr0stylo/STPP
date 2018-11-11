@@ -5,6 +5,11 @@ import (
 	"log"
 )
 
+//go:generate moq -out IConfig_mock.go . IConfig
+type IConfig interface {
+	Read() Config
+}
+
 type Config struct {
 	Server   string
 	Database string
@@ -12,9 +17,11 @@ type Config struct {
 	Audience string
 }
 
-
-func (c *Config) Read() {
+func (Config) Read() Config {
+	c := Config{}
 	if _, err := toml.DecodeFile("config.toml", &c); err != nil {
 		log.Fatal(err)
 	}
+
+	return c
 }

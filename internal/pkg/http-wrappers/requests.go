@@ -10,7 +10,7 @@ type HTTPResponse struct {
 	Body   []byte
 }
 
-func MakeRequest(url string, ch chan<-HTTPResponse) {
+func MakeRequest(url string, ch chan<- HTTPResponse) {
 	httpResponse, _ := http.Get(url)
 	httpBody, _ := ioutil.ReadAll(httpResponse.Body)
 	ch <- HTTPResponse{httpResponse.Status, httpBody}

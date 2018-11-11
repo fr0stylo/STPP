@@ -2,10 +2,8 @@ package config
 
 import (
 	"encoding/json"
-	"log"
-	"net/http"
-
 	. "time-logger/internal/pkg/dtos"
+	"time-logger/internal/pkg/http-wrappers"
 )
 
 type IConfigReader interface {
@@ -13,17 +11,27 @@ type IConfigReader interface {
 }
 
 type Reader struct {
+	http http_wrappers.HttpClient
 }
 
+func NewReader(client http_wrappers.HttpClient) *Reader {
+	return &Reader{http: client}
+}
 
-func (r *Reader) GetConfig() (Config) {
+func (r *Reader) GetConfig() (Config, error) {
 	var config Config
-	response, err := http.Get("http://config-service:3000/")
+	response, err := r.http.Get("http://config-service:3000/")
+	defer func() {
+		if response.Body != nil {
+			response.Body.Close()
+		}
+	}()
 
-	defer response.Body.Close()
-	if json.NewDecoder(response.Body).Decode(&config); err != nil {
-		log.Fatal(err.Error())
+	if err != nil {
+		return config, err
 	}
 
-	return config
+	json.NewDecoder(response.Body).Decode(&config)
+
+	return config, nil
 }

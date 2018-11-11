@@ -6,19 +6,19 @@ import (
 	. "time-logger/internal/pkg/http-wrappers"
 )
 
-var config = Config{}
+
 
 type IConfigReader interface {
 	GetConfig(w http.ResponseWriter, r *http.Request)
 } 
 
 type ConfigReader struct {
-	
+	Config IConfig
 }
 
 func (cr *ConfigReader) GetConfig(w http.ResponseWriter, r *http.Request){
 	defer r.Body.Close()
-	config.Read()
+	config := cr.Config.Read()
 
 	RespondWithJson(w, http.StatusOK, config)
 }

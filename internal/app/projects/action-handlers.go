@@ -2,100 +2,114 @@ package projects
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
 	"gopkg.in/mgo.v2/bson"
-	"log"
 	"net/http"
 
-	. "time-logger/internal/app/projects/database"
-	. "time-logger/internal/pkg/config"
 	. "time-logger/internal/pkg/entities"
 	. "time-logger/internal/pkg/http-wrappers"
 )
 
-var dao ProjectDAO
+func GetAllProjectsEndPoint(e *Env, w http.ResponseWriter, r *http.Request) error {
+	defer func() {
+		if r.Body != nil {
+			r.Body.Close()
+		}
+	}()
 
-func init() {
-	r := Reader{}
-	config := r.GetConfig()
-	dao.Server = config.Server
-	dao.Database = config.Database
-
-	dao.Connect()
-}
-
-func GetAllProjectsEndPoint(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
-	entries, err := dao.FindAll()
+	entries, err := e.DBConnection.FindAll()
 	if err != nil {
-		RespondWithError(w, http.StatusInternalServerError, "Invalid entries")
-		return
+		return StatusError{404, fmt.Errorf("%s", "Invalid entries")}
 	}
 
 	RespondWithJson(w, http.StatusOK, entries)
+
+	return nil
 }
 
-func GetProjectEndPoint(w http.ResponseWriter, r *http.Request) {
-	defer func () {
+func GetProjectEndPoint(e *Env, w http.ResponseWriter, r *http.Request) error {
+	defer func() {
 		if r := recover(); r != nil {
 			RespondWithError(w, http.StatusNotFound, "Entry not found")
 		}
-		r.Body.Close()
+		if r.Body != nil {
+			r.Body.Close()
+		}
 	}()
 	params := mux.Vars(r)
 
-	entry, err := dao.FindById(params["id"])
+	entry, err := e.DBConnection.FindById(params["id"])
+
+	project := entry.(Project)
 
 	if err != nil {
-		RespondWithError(w, http.StatusInternalServerError, "Invalid entries")
-		return
+		return StatusError{
+			http.StatusNotFound,
+			fmt.Errorf("%s", "Invalid entries"),
+		}
 	}
 
-	RespondWithJson(w, http.StatusOK, entry)
+	RespondWithJson(w, http.StatusOK, project)
+
+	return nil
 }
 
-func AddProjectEndPoint(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
+func AddProjectEndPoint(e *Env, w http.ResponseWriter, r *http.Request) error {
+	defer func() {
+		if r.Body != nil {
+			r.Body.Close()
+		}
+	}()
+
 	var project Project
 	if err := json.NewDecoder(r.Body).Decode(&project); err != nil {
-		log.Fatal(err)
-		RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
-		return
+		return StatusError{
+			http.StatusBadRequest,
+			fmt.Errorf("%s, %s", "Invalid request payload", err),
+		}
 	}
 	project.ID = bson.NewObjectId()
 
-	if err := dao.Insert(project); err != nil {
-		RespondWithError(w, http.StatusInternalServerError, err.Error())
-		return
+	err := e.DBConnection.Insert(project)
+	if err != nil {
+		return StatusError{
+			http.StatusConflict,
+			fmt.Errorf("%s", err.Error()),
+		}
 	}
 	RespondWithJson(w, http.StatusCreated, project)
+
+	return nil
 }
 
-func UpdateProjectEndPoint(w http.ResponseWriter, r *http.Request) {
+func UpdateProjectEndPoint(e *Env, w http.ResponseWriter, r *http.Request) error {
 	defer r.Body.Close()
 	var project Project
 	if err := json.NewDecoder(r.Body).Decode(&project); err != nil {
-		RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
-		return
+		return StatusError{http.StatusBadRequest, fmt.Errorf("%s", "Invalid request payload")}
 	}
-	if err := dao.Update(project); err != nil {
-		RespondWithError(w, http.StatusInternalServerError, err.Error())
-		return
+
+	if err := e.DBConnection.Update(project); err != nil {
+		return StatusError{http.StatusInternalServerError, fmt.Errorf("%s, %s", "Invalid request payload", err)}
 	}
+
 	RespondWithJson(w, http.StatusOK, map[string]string{"result": "success"})
+
+	return nil
 }
 
-func DeleteProjectEndPoint(w http.ResponseWriter, r *http.Request) {
+func DeleteProjectEndPoint(e *Env, w http.ResponseWriter, r *http.Request) error {
 	defer r.Body.Close()
 	var project Project
 	if err := json.NewDecoder(r.Body).Decode(&project); err != nil {
-		RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
-		return
+		return StatusError{http.StatusBadRequest, fmt.Errorf("%s ", "Invalid payload")}
 	}
-	if err := dao.Delete(project); err != nil {
-		RespondWithError(w, http.StatusInternalServerError, err.Error())
-		return
+
+	if err := e.DBConnection.Delete(project); err != nil {
+		return StatusError{http.StatusInternalServerError, fmt.Errorf("%s ", err)}
 	}
 	RespondWithJson(w, http.StatusOK, map[string]string{"result": "success"})
+
+	return nil
 }

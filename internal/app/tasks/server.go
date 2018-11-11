@@ -2,27 +2,22 @@ package tasks
 
 import (
 	"github.com/codegangsta/negroni"
-	"github.com/gorilla/mux"
-	"log"
-	"net/http"
-	"strconv"
+	"time-logger/internal/app/tasks/database"
+	. "time-logger/internal/pkg/http-wrappers"
+	"time-logger/internal/pkg/server"
 )
 
-func StartServer(port int) {
-	r := mux.NewRouter()
+func StartServer(r server.Router, env *Env) *negroni.Negroni{
+	env.DBConnection = &database.TaskDAO{DB: env.DB}
 
-	r.HandleFunc("/", GetAllTasksEndPoint).Methods("GET")
-	r.HandleFunc("/", AddTaskEndPoint).Methods("POST")
-	r.HandleFunc("/", UpdateTaskEndPoint).Methods("PUT")
-	r.HandleFunc("/", DeleteTaskEndPoint).Methods("DELETE")
-	r.HandleFunc("/{id}", GetTaskEndPoint).Methods("GET")
+	r.Handle("/", Handler{env, GetAllTasksEndPoint}).Methods("GET")
+	r.Handle("/", Handler{env, AddTaskEndPoint}).Methods("POST")
+	r.Handle("/", Handler{env, UpdateTaskEndPoint}).Methods("PUT")
+	r.Handle("/", Handler{env, DeleteTaskEndPoint}).Methods("DELETE")
+	r.Handle("/{id}", Handler{env, GetTaskEndPoint}).Methods("GET")
 
 	n := negroni.Classic()
 	n.UseHandler(r)
 
-	stringedPort := ":"+ strconv.Itoa(port)
-
-	if err := http.ListenAndServe(stringedPort, n); err != nil {
-		log.Fatal(err)
-	}
+	return n
 }

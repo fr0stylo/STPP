@@ -2,94 +2,117 @@ package tasks
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
 	"gopkg.in/mgo.v2/bson"
 	"net/http"
 
-	. "time-logger/internal/app/tasks/database"
-	. "time-logger/internal/pkg/config"
 	. "time-logger/internal/pkg/entities"
 	. "time-logger/internal/pkg/http-wrappers"
 )
 
-var dao TaskDAO
+func GetAllTasksEndPoint(e *Env, w http.ResponseWriter, r *http.Request) error {
+	defer func() {
+		if r.Body != nil {
+			r.Body.Close()
+		}
+	}()
 
-func init() {
-	r := Reader{}
-	config := r.GetConfig()
-	dao.Server = config.Server
-	dao.Database = config.Database
-
-	dao.Connect()
-}
-
-func GetAllTasksEndPoint(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
-
-	entries, err := dao.FindAll()
+	entries, err := e.DBConnection.FindAll()
 	if err != nil {
-		RespondWithError(w, http.StatusInternalServerError, "Invalid entries")
-		return
+		return StatusError{
+			http.StatusInternalServerError,
+			fmt.Errorf("%s", "Invalid entries"),
+		}
 	}
 
 	RespondWithJson(w, http.StatusOK, entries)
+
+	return nil
 }
 
-func GetTaskEndPoint(w http.ResponseWriter, r *http.Request) {
-	defer r.Body.Close()
+func GetTaskEndPoint(e *Env, w http.ResponseWriter, r *http.Request) error {
+	defer func() {
+		if r.Body != nil {
+			r.Body.Close()
+		}
+	}()
 	params := mux.Vars(r)
 
-	entry, err := dao.FindById(params["id"])
+	entry, err := e.DBConnection.FindById(params["id"])
 
 	if err != nil {
-		RespondWithError(w, http.StatusInternalServerError, "Invalid entries")
-		return
+		return StatusError{
+			http.StatusInternalServerError,
+			fmt.Errorf("%s", "Invalid entries"),
+		}
 	}
 
 	RespondWithJson(w, http.StatusOK, entry)
+
+	return nil
 }
 
-func AddTaskEndPoint(w http.ResponseWriter, r *http.Request) {
+func AddTaskEndPoint(e *Env, w http.ResponseWriter, r *http.Request) error {
 	defer r.Body.Close()
 	var task Task
 	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
-		RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
-		return
+		return StatusError{
+			http.StatusBadRequest,
+			fmt.Errorf("%s", "Invalid request payload"),
+		}
 	}
 	task.ID = bson.NewObjectId()
 
-	if err := dao.Insert(task); err != nil {
-		RespondWithError(w, http.StatusInternalServerError, err.Error())
-		return
+	if err := e.DBConnection.Insert(task); err != nil {
+		return StatusError{
+			http.StatusBadRequest,
+			fmt.Errorf("%s", err.Error()),
+		}
 	}
 	RespondWithJson(w, http.StatusCreated, task)
+
+	return nil
 }
 
-func UpdateTaskEndPoint(w http.ResponseWriter, r *http.Request) {
+func UpdateTaskEndPoint(e *Env, w http.ResponseWriter, r *http.Request) error {
 	defer r.Body.Close()
 	var task Task
 	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
-		RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
-		return
+		return StatusError{
+			http.StatusBadRequest,
+			fmt.Errorf("%s", "Invalid request payload"),
+		}
 	}
-	if err := dao.Update(task); err != nil {
-		RespondWithError(w, http.StatusInternalServerError, err.Error())
-		return
+
+	if err := e.DBConnection.Update(task); err != nil {
+		return StatusError{
+			http.StatusBadRequest,
+			fmt.Errorf("%s", err.Error()),
+		}
 	}
 	RespondWithJson(w, http.StatusOK, map[string]string{"result": "success"})
+
+	return nil
 }
 
-func DeleteTaskEndPoint(w http.ResponseWriter, r *http.Request) {
+func DeleteTaskEndPoint(e *Env, w http.ResponseWriter, r *http.Request) error {
 	defer r.Body.Close()
 	var task Task
 	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
-		RespondWithError(w, http.StatusBadRequest, "Invalid request payload")
-		return
+		return StatusError{
+			http.StatusBadRequest,
+			fmt.Errorf("%s", "Invalid request payload"),
+		}
 	}
-	if err := dao.Delete(task); err != nil {
-		RespondWithError(w, http.StatusInternalServerError, err.Error())
-		return
+
+	if err := e.DBConnection.Delete(task); err != nil {
+		return StatusError{
+			http.StatusBadRequest,
+			fmt.Errorf("%s", err.Error()),
+		}
 	}
 	RespondWithJson(w, http.StatusOK, map[string]string{"result": "success"})
-}
 
+	return nil
+}

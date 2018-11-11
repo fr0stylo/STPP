@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	. "time-logger/internal/pkg/dtos"
 )
 
 type Server struct {
@@ -15,7 +16,10 @@ type Server struct {
 
 func StartServer(port int) {
 	r := mux.NewRouter()
-	cr := ConfigReader{}
+	c := Config{}
+	cr := ConfigReader{
+		c,
+	}
 
 	r.HandleFunc("/", cr.GetConfig).Methods("GET")
 
