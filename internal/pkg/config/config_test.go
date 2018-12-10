@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 	"time-logger/internal/pkg/dtos"
-	"time-logger/internal/pkg/http-wrappers"
+	"time-logger/shared/http-wrappers"
 )
 
 var httpClientMock *http_wrappers.HttpClientMock

@@ -14,7 +14,7 @@ func TestRespondWithError(t *testing.T) {
 
 	assert.Equal(t, "{\"error\":\"Error Occurred\"}", response.Body.String())
 	assert.Equal(t, http.StatusConflict, response.Code)
-	assert.Equal(t, http.Header{"Content-Type":[]string{"application/json"}}, response.Header())
+	assert.Equal(t, http.Header{"Content-Type": []string{"application/json"}}, response.Header())
 }
 
 func TestRespondWithJson(t *testing.T) {
@@ -26,6 +26,6 @@ func TestRespondWithJson(t *testing.T) {
 
 	assert.Equal(t, "{\"foo\":\"bar\"}", response.Body.String())
 	assert.Equal(t, http.StatusOK, response.Code)
-	assert.Equal(t, http.Header{"Content-Type":[]string{"application/json"}}, response.Header())
+	assert.Equal(t, http.Header{"Content-Type": []string{"application/json"}}, response.Header())
 
 }

@@ -3,11 +3,11 @@ package tasks
 import (
 	"github.com/codegangsta/negroni"
 	"time-logger/internal/app/tasks/database"
-	. "time-logger/internal/pkg/http-wrappers"
 	"time-logger/internal/pkg/server"
+	. "time-logger/shared/http-wrappers"
 )
 
-func StartServer(r server.Router, env *Env) *negroni.Negroni{
+func StartServer(r server.Router, env *Env) *negroni.Negroni {
 	env.DBConnection = &database.TaskDAO{DB: env.DB}
 
 	r.Handle("/", Handler{env, GetAllTasksEndPoint}).Methods("GET")

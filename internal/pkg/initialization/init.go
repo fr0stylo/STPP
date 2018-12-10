@@ -7,7 +7,7 @@ import (
 	"time"
 	"time-logger/internal/pkg/config"
 	"time-logger/internal/pkg/database-access"
-	handler "time-logger/internal/pkg/http-wrappers"
+	handler "time-logger/shared/http-wrappers"
 )
 
 func StartupEnv() *handler.Env {

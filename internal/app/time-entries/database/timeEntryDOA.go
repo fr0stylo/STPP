@@ -16,17 +16,11 @@ const (
 	COLLECTION = "time-entries"
 )
 
-func (m *TimeEntryDAO) FindAll() ([]interface{}, error) {
+func (m *TimeEntryDAO) FindAll() (interface{}, error) {
 	var entries []TimeEntry
 	err := m.DB.C(COLLECTION).Find(bson.M{}).All(&entries)
 
-	results := make([] interface{}, len(entries))
-
-	for i, o := range entries {
-		results[i] = o
-	}
-
-	return results, err
+	return &entries, err
 }
 
 func (m *TimeEntryDAO) FindById(id string) (interface{}, error) {
@@ -47,13 +41,14 @@ func (m *TimeEntryDAO) Insert(entry interface{}) error {
 	return err
 }
 
-func (m *TimeEntryDAO) Delete(entry interface{}) error {
-	timeEntry, ok := entry.(TimeEntry)
-	if !ok {
-		return fmt.Errorf("%s %T", "Given type is not a", TimeEntry{})
+func (m *TimeEntryDAO) Delete(id string) error {
+	var objectId bson.ObjectId
+
+	if objectId = bson.ObjectIdHex(id); recover() != nil {
+		return fmt.Errorf("%s", "Cannot convert string to object id")
 	}
 
-	err := m.DB.C(COLLECTION).Remove(&timeEntry)
+	err := m.DB.C(COLLECTION).Remove(bson.M{"_id": objectId})
 	return err
 }
 

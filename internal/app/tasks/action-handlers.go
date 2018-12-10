@@ -8,7 +8,7 @@ import (
 	"net/http"
 
 	. "time-logger/internal/pkg/entities"
-	. "time-logger/internal/pkg/http-wrappers"
+	. "time-logger/shared/http-wrappers"
 )
 
 func GetAllTasksEndPoint(e *Env, w http.ResponseWriter, r *http.Request) error {
@@ -97,16 +97,9 @@ func UpdateTaskEndPoint(e *Env, w http.ResponseWriter, r *http.Request) error {
 }
 
 func DeleteTaskEndPoint(e *Env, w http.ResponseWriter, r *http.Request) error {
-	defer r.Body.Close()
-	var task Task
-	if err := json.NewDecoder(r.Body).Decode(&task); err != nil {
-		return StatusError{
-			http.StatusBadRequest,
-			fmt.Errorf("%s", "Invalid request payload"),
-		}
-	}
+	params := mux.Vars(r)
 
-	if err := e.DBConnection.Delete(task); err != nil {
+	if err := e.DBConnection.Delete(params["id"]); err != nil {
 		return StatusError{
 			http.StatusBadRequest,
 			fmt.Errorf("%s", err.Error()),

@@ -5,8 +5,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
-	"time-logger/internal/pkg/http-wrappers"
 	"time-logger/internal/pkg/server"
+	"time-logger/shared/http-wrappers"
 )
 
 func TestStartServer(t *testing.T) {
@@ -17,7 +17,7 @@ func TestStartServer(t *testing.T) {
 		MethodsFunc: func(methods ...string) *mux.Route {
 			return &mux.Route{}
 		},
-		ServeHTTPFunc: func(w http.ResponseWriter, r *http.Request)  {
+		ServeHTTPFunc: func(w http.ResponseWriter, r *http.Request) {
 			return
 		},
 	}
@@ -25,6 +25,6 @@ func TestStartServer(t *testing.T) {
 	StartServer(mockedRouter, &http_wrappers.Env{})
 
 	hc := mockedRouter.HandleCalls()
-	assert.Equal(t, 5, len(hc))
+	assert.Equal(t, 3, len(hc))
 
 }

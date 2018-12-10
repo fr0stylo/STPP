@@ -21,10 +21,10 @@ var (
 //
 //         // make and configure a mocked DataAccessObject
 //         mockedDataAccessObject := &DataAccessObjectMock{
-//             DeleteFunc: func(entry interface{}) error {
+//             DeleteFunc: func(id string) error {
 // 	               panic("mock out the Delete method")
 //             },
-//             FindAllFunc: func() ([]interface{}, error) {
+//             FindAllFunc: func() (interface{}, error) {
 // 	               panic("mock out the FindAll method")
 //             },
 //             FindByIdFunc: func(id string) (interface{}, error) {
@@ -44,10 +44,10 @@ var (
 //     }
 type DataAccessObjectMock struct {
 	// DeleteFunc mocks the Delete method.
-	DeleteFunc func(entry interface{}) error
+	DeleteFunc func(id string) error
 
 	// FindAllFunc mocks the FindAll method.
-	FindAllFunc func() ([]interface{}, error)
+	FindAllFunc func() (interface{}, error)
 
 	// FindByIdFunc mocks the FindById method.
 	FindByIdFunc func(id string) (interface{}, error)
@@ -62,8 +62,8 @@ type DataAccessObjectMock struct {
 	calls struct {
 		// Delete holds details about calls to the Delete method.
 		Delete []struct {
-			// Entry is the entry argument value.
-			Entry interface{}
+			// ID is the id argument value.
+			ID string
 		}
 		// FindAll holds details about calls to the FindAll method.
 		FindAll []struct {
@@ -87,29 +87,29 @@ type DataAccessObjectMock struct {
 }
 
 // Delete calls DeleteFunc.
-func (mock *DataAccessObjectMock) Delete(entry interface{}) error {
+func (mock *DataAccessObjectMock) Delete(id string) error {
 	if mock.DeleteFunc == nil {
 		panic("DataAccessObjectMock.DeleteFunc: method is nil but DataAccessObject.Delete was just called")
 	}
 	callInfo := struct {
-		Entry interface{}
+		ID string
 	}{
-		Entry: entry,
+		ID: id,
 	}
 	lockDataAccessObjectMockDelete.Lock()
 	mock.calls.Delete = append(mock.calls.Delete, callInfo)
 	lockDataAccessObjectMockDelete.Unlock()
-	return mock.DeleteFunc(entry)
+	return mock.DeleteFunc(id)
 }
 
 // DeleteCalls gets all the calls that were made to Delete.
 // Check the length with:
 //     len(mockedDataAccessObject.DeleteCalls())
 func (mock *DataAccessObjectMock) DeleteCalls() []struct {
-	Entry interface{}
+	ID string
 } {
 	var calls []struct {
-		Entry interface{}
+		ID string
 	}
 	lockDataAccessObjectMockDelete.RLock()
 	calls = mock.calls.Delete
@@ -118,7 +118,7 @@ func (mock *DataAccessObjectMock) DeleteCalls() []struct {
 }
 
 // FindAll calls FindAllFunc.
-func (mock *DataAccessObjectMock) FindAll() ([]interface{}, error) {
+func (mock *DataAccessObjectMock) FindAll() (interface{}, error) {
 	if mock.FindAllFunc == nil {
 		panic("DataAccessObjectMock.FindAllFunc: method is nil but DataAccessObject.FindAll was just called")
 	}

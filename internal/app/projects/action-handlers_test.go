@@ -13,21 +13,15 @@ import (
 	"testing"
 	"time-logger/internal/pkg/database-access"
 	"time-logger/internal/pkg/entities"
-	"time-logger/internal/pkg/http-wrappers"
+	"time-logger/shared/http-wrappers"
 )
 
 var mockedIDataAccessObject *database_access.DataAccessObjectMock
 
-func prepEnv(projects [] entities.Project, e error) *http_wrappers.Env {
+func prepEnv(projects []entities.Project, e error) *http_wrappers.Env {
 	mockedIDataAccessObject = &database_access.DataAccessObjectMock{
-		FindAllFunc: func() ([]interface{}, error) {
-			result := make([] interface{}, len(projects))
-
-			for i, o := range projects {
-				result[i] = o
-			}
-
-			return result, e
+		FindAllFunc: func() (interface{}, error) {
+			return &projects, e
 		},
 	}
 
@@ -44,7 +38,7 @@ func prepEnvSingle(project entities.Project, e error) *http_wrappers.Env {
 		InsertFunc: func(entry interface{}) error {
 			return e
 		},
-		DeleteFunc: func(entry interface{}) error {
+		DeleteFunc: func(name string) error {
 			return e
 		},
 		UpdateFunc: func(entry interface{}) error {
@@ -65,7 +59,7 @@ func TestGetAllProjectsEndPoint_ShouldReturnStatusOk(t *testing.T) {
 
 	resp := httptest.NewRecorder()
 
-	expectedProjects := make([] entities.Project, 5)
+	expectedProjects := make([]entities.Project, 5)
 	for i := range expectedProjects {
 		expectedProjects[i] = entities.Project{Name: "Test" + strconv.Itoa(i)}
 	}
@@ -79,7 +73,7 @@ func TestGetAllProjectsEndPoint_ShouldReturnStatusOk(t *testing.T) {
 }
 
 func TestGetAllProjectsEndPoint_ShouldReturnCorrectResutls(t *testing.T) {
-	expectedProjects := make([] entities.Project, 5)
+	expectedProjects := make([]entities.Project, 5)
 	for i := range expectedProjects {
 		expectedProjects[i] = entities.Project{Name: "Test" + strconv.Itoa(i)}
 	}
@@ -95,7 +89,7 @@ func TestGetAllProjectsEndPoint_ShouldReturnCorrectResutls(t *testing.T) {
 	handler := http_wrappers.Handler{env, GetAllProjectsEndPoint}
 	handler.ServeHTTP(resp, req)
 
-	items := [] entities.Project{}
+	items := []entities.Project{}
 	err = json.NewDecoder(resp.Body).Decode(&items)
 
 	if err != nil {
@@ -106,7 +100,7 @@ func TestGetAllProjectsEndPoint_ShouldReturnCorrectResutls(t *testing.T) {
 }
 
 func TestGetAllProjectsEndPoint_DeferShouldCloseBody(t *testing.T) {
-	expectedProjects := make([] entities.Project, 5)
+	expectedProjects := make([]entities.Project, 5)
 	for i := range expectedProjects {
 		expectedProjects[i] = entities.Project{Name: "Test" + strconv.Itoa(i)}
 	}
@@ -122,7 +116,7 @@ func TestGetAllProjectsEndPoint_DeferShouldCloseBody(t *testing.T) {
 	handler := http_wrappers.Handler{env, GetAllProjectsEndPoint}
 	handler.ServeHTTP(resp, req)
 
-	items := [] entities.Project{}
+	items := []entities.Project{}
 	err = json.NewDecoder(resp.Body).Decode(&items)
 
 	if err != nil {
@@ -133,7 +127,7 @@ func TestGetAllProjectsEndPoint_DeferShouldCloseBody(t *testing.T) {
 }
 
 func TestGetAllProjectsEndPoint_ShouldReturnError(t *testing.T) {
-	expectedProjects := make([] entities.Project, 0)
+	expectedProjects := make([]entities.Project, 0)
 
 	env := prepEnv(expectedProjects, fmt.Errorf("%s", "No entries"))
 	req, _ := http.NewRequest(http.MethodGet, "localhost:3000", nil)
@@ -367,21 +361,4 @@ func TestDeleteProjectEndPoint_ShouldFailWithErrorWhileUpdating(t *testing.T) {
 	d := mockedIDataAccessObject.DeleteCalls()
 
 	assert.Equal(t, 1, len(d))
-}
-
-func TestDeleteProjectEndPoint_ShouldFailWithIncorrectPayload(t *testing.T) {
-	req, _ := http.NewRequest(http.MethodPost, "localhost:3000", ioutil.NopCloser(strings.NewReader("Name:\"name\",;Budget:1.0, Price:1000,Stakeholder:\"stake\"}")))
-
-	resp := httptest.NewRecorder()
-
-	env := prepEnvSingle(entities.Project{}, nil)
-
-	handler := http_wrappers.Handler{env, DeleteProjectEndPoint}
-	handler.ServeHTTP(resp, req)
-
-	assert.Equal(t, http.StatusBadRequest, resp.Code)
-
-	d := mockedIDataAccessObject.UpdateCalls()
-	assert.Equal(t, 0, len(d))
-	assert.JSONEq(t, "{\"error\":\"Invalid payload \"}", resp.Body.String())
 }

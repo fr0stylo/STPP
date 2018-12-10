@@ -32,10 +32,10 @@ func (se StatusError) Status() int {
 // A (simple) example of our application-wide configuration.
 type Env struct {
 	DBConnection database_access.DataAccessObject
-	DB   database_access.DataLayer
-	HttpClient HttpClient
-	Port string
-	Host string
+	DB           database_access.DataLayer
+	HttpClient   HttpClient
+	Port         string
+	Host         string
 }
 
 type Handler struct {

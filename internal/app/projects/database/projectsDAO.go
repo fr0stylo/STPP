@@ -16,23 +16,21 @@ const (
 	COLLECTION = "project"
 )
 
-func (m *ProjectDAO) FindAll() ([] interface{}, error) {
+func (m *ProjectDAO) FindAll() (interface{}, error) {
 	var entries []Project
 	err := m.DB.C(COLLECTION).Find(bson.M{}).All(&entries)
-
-	result := make([] interface{}, len(entries))
-
-	for i, o := range result {
-		result[i] = o
+	if err != nil {
+		return nil, fmt.Errorf("Unable to get all projects, %s", err)
 	}
 
-	return result, err
+	return &entries, nil
 }
 
 func (m *ProjectDAO) FindById(id string) (interface{}, error) {
 	var entries Project
 	err := m.DB.C(COLLECTION).FindId(bson.ObjectIdHex(id)).One(&entries)
-	return entries, err
+
+	return &entries, err
 }
 
 func (m *ProjectDAO) Insert(entry interface{}) error {
@@ -45,13 +43,14 @@ func (m *ProjectDAO) Insert(entry interface{}) error {
 	return err
 }
 
-func (m *ProjectDAO) Delete(entry interface{}) error {
-	project, ok := entry.(Project)
-	if !ok {
-		return fmt.Errorf("%s", "Given type is not a project")
+func (m *ProjectDAO) Delete(id string) error {
+	var objectId bson.ObjectId
+
+	if objectId = bson.ObjectIdHex(id); recover() != nil {
+		return fmt.Errorf("%s", "Cannot convert string to object id")
 	}
 
-	err := m.DB.C(COLLECTION).Remove(&project)
+	err := m.DB.C(COLLECTION).Remove(bson.M{"_id": objectId})
 	return err
 }
 

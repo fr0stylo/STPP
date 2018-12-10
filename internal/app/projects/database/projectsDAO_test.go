@@ -14,7 +14,7 @@ var dataAccessLayerMock *database_access.DataLayerMock
 var collectionMock *database_access.CollectionMock
 var queryMock *database_access.QueryMock
 
-func setupMany(results *[]interface{}, err error) {
+func setupMany(results interface{}, err error) {
 	dataAccessLayerMock = &database_access.DataLayerMock{
 		CFunc: func(name string) database_access.Collection {
 			return collectionMock
@@ -29,7 +29,7 @@ func setupMany(results *[]interface{}, err error) {
 
 	queryMock = &database_access.QueryMock{
 		AllFunc: func(result interface{}) error {
-			result = results
+			result = &results
 			return err
 		},
 	}
@@ -67,7 +67,7 @@ func setupSingle(result interface{}, err error) {
 
 	queryMock = &database_access.QueryMock{
 		AllFunc: func(result interface{}) error {
-			result = result
+			result = &result
 			return err
 		},
 		OneFunc: func(result interface{}) error {
@@ -79,7 +79,7 @@ func setupSingle(result interface{}, err error) {
 }
 
 func TestProjectDAO_FindAll(t *testing.T) {
-	projects := make([] interface{}, 3)
+	projects := make([]interface{}, 3)
 	for i := range projects {
 		projects[i] = entities.Project{Name: "Test" + strconv.Itoa(i)}
 	}
@@ -175,26 +175,11 @@ func TestProjectDAO_Delete(t *testing.T) {
 
 	setupSingle(entities.Project{}, nil)
 
-	projectDAO.Delete(project)
+	projectDAO.Delete(project.ID.Hex())
 
 	c := dataAccessLayerMock.CCalls()
 	assert.Equal(t, 1, len(c))
 
 	fc := collectionMock.RemoveCalls()
 	assert.Equal(t, 1, len(fc))
-}
-
-func TestProjectDAO_Delete_Error(t *testing.T) {
-	te := entities.TimeEntry{}
-	setupSingle(entities.Project{}, nil)
-
-	err := projectDAO.Delete(te)
-
-	assert.Equal(t, "Given type is not a project", err.Error())
-
-	c := dataAccessLayerMock.CCalls()
-	assert.Equal(t, 0, len(c))
-
-	fc := collectionMock.RemoveCalls()
-	assert.Equal(t, 0, len(fc))
 }

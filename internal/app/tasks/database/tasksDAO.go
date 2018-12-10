@@ -16,16 +16,11 @@ const (
 	COLLECTION = "task"
 )
 
-func (m *TaskDAO) FindAll() ([] interface{}, error) {
+func (m *TaskDAO) FindAll() (interface{}, error) {
 	var entries []Task
 	err := m.DB.C(COLLECTION).Find(bson.M{}).All(&entries)
 
-	results := make([] interface{}, len(entries))
-
-	for i, o := range entries {
-		results[i] = o
-	}
-	return results, err
+	return &entries, err
 }
 
 func (m *TaskDAO) FindById(id string) (interface{}, error) {
@@ -45,14 +40,14 @@ func (m *TaskDAO) Insert(entry interface{}) error {
 	return err
 }
 
-func (m *TaskDAO) Delete(entry interface{}) error {
-	task, ok := entry.(Task)
+func (m *TaskDAO) Delete(id string) error {
+	var objectId bson.ObjectId
 
-	if !ok {
-		return fmt.Errorf("%s %T", "Given type is not a", Task{})
+	if objectId = bson.ObjectIdHex(id); recover() != nil {
+		return fmt.Errorf("%s", "Cannot convert string to object id")
 	}
 
-	err := m.DB.C(COLLECTION).Remove(&task)
+	err := m.DB.C(COLLECTION).Remove(bson.M{"_id": objectId})
 	return err
 }
 

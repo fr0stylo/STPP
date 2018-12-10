@@ -3,7 +3,7 @@ package config
 import (
 	"encoding/json"
 	. "time-logger/internal/pkg/dtos"
-	"time-logger/internal/pkg/http-wrappers"
+	"time-logger/shared/http-wrappers"
 )
 
 type IConfigReader interface {

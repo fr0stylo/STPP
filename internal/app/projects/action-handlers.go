@@ -8,7 +8,7 @@ import (
 	"net/http"
 
 	. "time-logger/internal/pkg/entities"
-	. "time-logger/internal/pkg/http-wrappers"
+	. "time-logger/shared/http-wrappers"
 )
 
 func GetAllProjectsEndPoint(e *Env, w http.ResponseWriter, r *http.Request) error {
@@ -18,12 +18,13 @@ func GetAllProjectsEndPoint(e *Env, w http.ResponseWriter, r *http.Request) erro
 		}
 	}()
 
-	entries, err := e.DBConnection.FindAll()
+	results, err := e.DBConnection.FindAll()
+
 	if err != nil {
 		return StatusError{404, fmt.Errorf("%s", "Invalid entries")}
 	}
 
-	RespondWithJson(w, http.StatusOK, entries)
+	RespondWithJson(w, http.StatusOK, results)
 
 	return nil
 }
@@ -41,8 +42,6 @@ func GetProjectEndPoint(e *Env, w http.ResponseWriter, r *http.Request) error {
 
 	entry, err := e.DBConnection.FindById(params["id"])
 
-	project := entry.(Project)
-
 	if err != nil {
 		return StatusError{
 			http.StatusNotFound,
@@ -50,7 +49,7 @@ func GetProjectEndPoint(e *Env, w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
-	RespondWithJson(w, http.StatusOK, project)
+	RespondWithJson(w, http.StatusOK, entry)
 
 	return nil
 }
@@ -84,11 +83,11 @@ func AddProjectEndPoint(e *Env, w http.ResponseWriter, r *http.Request) error {
 }
 
 func UpdateProjectEndPoint(e *Env, w http.ResponseWriter, r *http.Request) error {
-	defer r.Body.Close()
 	var project Project
 	if err := json.NewDecoder(r.Body).Decode(&project); err != nil {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("%s", "Invalid request payload")}
 	}
+	defer r.Body.Close()
 
 	if err := e.DBConnection.Update(project); err != nil {
 		return StatusError{http.StatusInternalServerError, fmt.Errorf("%s, %s", "Invalid request payload", err)}
@@ -100,15 +99,12 @@ func UpdateProjectEndPoint(e *Env, w http.ResponseWriter, r *http.Request) error
 }
 
 func DeleteProjectEndPoint(e *Env, w http.ResponseWriter, r *http.Request) error {
-	defer r.Body.Close()
-	var project Project
-	if err := json.NewDecoder(r.Body).Decode(&project); err != nil {
-		return StatusError{http.StatusBadRequest, fmt.Errorf("%s ", "Invalid payload")}
-	}
+	params := mux.Vars(r)
 
-	if err := e.DBConnection.Delete(project); err != nil {
+	if err := e.DBConnection.Delete(params["id"]); err != nil {
 		return StatusError{http.StatusInternalServerError, fmt.Errorf("%s ", err)}
 	}
+
 	RespondWithJson(w, http.StatusOK, map[string]string{"result": "success"})
 
 	return nil
