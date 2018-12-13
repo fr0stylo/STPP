@@ -21,11 +21,6 @@ func NewReader(client http_wrappers.HttpClient) *Reader {
 func (r *Reader) GetConfig() (Config, error) {
 	var config Config
 	response, err := r.http.Get("http://config-service:3000/")
-	defer func() {
-		if response.Body != nil {
-			response.Body.Close()
-		}
-	}()
 
 	if err != nil {
 		return config, err

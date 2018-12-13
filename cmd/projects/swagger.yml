@@ -1,0 +1,130 @@
+consumes:
+- application/json
+info:
+  description: Timelogger
+  title: TimeLogger
+  version: 0.1.0
+paths:
+  /projects:
+    get:
+      operationId: "GetAllProjectsEndPoint"
+      responses:
+        200:
+          description: "Success Result"
+          schema:
+            $ref: "#/definitions/Project"
+        404:
+          description: "Entity not found"
+          schema:
+            $ref: "#/definitions/Error"
+    post:
+      operationId: "AddProjectEndPoint"
+      parameters:
+      - in: body
+        name: Project
+        schema:
+          $ref: "#/definitions/Project"
+      responses:
+        201:
+          description: "Success Result"
+          schema:
+            $ref: "#/definitions/Project"
+        400:
+          description: "Entity corrupted"
+          schema:
+            $ref: "#/definitions/Error"
+        409:
+          description: "Entity exists"
+          schema:
+            $ref: "#/definitions/Error"
+    put:
+      operationId: "UpdateProjectEndPoint"
+      parameters:
+      - in: body
+        name: Project
+        schema:
+          $ref: "#/definitions/Project"
+      responses:
+        200:
+          description: "Success Result"
+          schema:
+            $ref: "#/definitions/Success"
+        400:
+          description: "Entity corrupted"
+          schema:
+            $ref: "#/definitions/Error"
+        500:
+          description: "Database connection issue"
+          schema:
+            $ref: "#/definitions/Error"
+  /projects/{id}:
+    get:
+      operationId: "GetProjectEndPoint"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of project"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "Success Result"
+          schema:
+            $ref: "#/definitions/Project"
+        404:
+          description: "Entity not found"
+          schema:
+            $ref: "#/definitions/Error"
+    delete:
+      operationId: "DeleteProjectEndPoint"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of project"
+        required: true
+        type: "integer"
+        format: "int64"
+      responses:
+        200:
+          description: "Success Result"
+          schema:
+            $ref: "#/definitions/Success"
+produces:
+- application/json
+schemes:
+- http
+definitions:
+  Success:
+    type: "object"
+    properties:
+      result:
+        type: "string"
+        format: "string"
+        enum:
+        - "success"
+  Error:
+    type: "string"
+  Project:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        format: "bson.ObjectId"
+      name:
+        type: "string"
+      startDate:
+        type: "string"
+        format: "date-time"
+      endDate:
+        type: "string"
+        format: "date-time"
+      budget:
+        type: "number"
+        format: "float64"
+      price:
+        type: "number"
+        format: "float64"
+      stakeholder:
+        type: "string"
+swagger: "2.0"

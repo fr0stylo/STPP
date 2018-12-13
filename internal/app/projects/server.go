@@ -6,7 +6,7 @@ import (
 	"time-logger/internal/pkg/server"
 	. "time-logger/shared/http-wrappers"
 )
-
+//go:generate swagger generate spec
 func StartServer(r server.Router, env *Env) *negroni.Negroni {
 	env.DBConnection = &database.ProjectDAO{DB: env.DB}
 

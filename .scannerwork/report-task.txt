@@ -1,0 +1,7 @@
+organization=fr0stylo-github
+projectKey=fr0stylo_STPP
+serverUrl=https://sonarcloud.io
+serverVersion=7.5.0.20127
+dashboardUrl=https://sonarcloud.io/dashboard?id=fr0stylo_STPP
+ceTaskId=AWemeTNsk8xMH8iud-ny
+ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AWemeTNsk8xMH8iud-ny
